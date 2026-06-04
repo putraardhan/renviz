@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import TermsPage from "./Terms";
 
 const SUPABASE_URL = "https://slmplhhqkzfdlmpscsvj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsbXBsaGhxa3pmZGxtcHNjc3ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDk0MjIsImV4cCI6MjA5NTcyNTQyMn0.LbRgXMBku8hrrd-AJJtL3MJlKITlMuCc6LoDenEX8Mw";
@@ -615,7 +616,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
             </div>
           </div>
         </div>
-        <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text">{user?.email}</span></div>
+        <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text">{user?.email}</span><span className="r-footer-text" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => onNav("terms")}>Terms & Conditions</span></div>
       </div>
     </div>
   );
@@ -710,6 +711,7 @@ export default function App() {
           <div className="nav-logo" onClick={() => setPage("home")}>renviz<span>.app</span></div>
           <div className="nav-links">
             <button className="nav-link" onClick={() => onNav("pricing")}>Pricing</button>
+            <button className="nav-link" onClick={() => onNav("terms")}>Terms</button>
             {user ? (
               <><button className="nav-link" onClick={() => onNav("render")}>Dashboard</button>
               <button className="nav-cta" onClick={() => { supabase.clearSession(); setUser(null); setIsNewUser(false); setPage("home"); }}>Sign Out</button></>
@@ -724,6 +726,7 @@ export default function App() {
       {page === "auth" && <AuthPage onLogin={onLogin} onNav={onNav} />}
       {page === "pricing" && <PricingPage user={user} onNav={onNav} isNewUser={isNewUser} setIsNewUser={setIsNewUser} onCreditsUpdate={(add, plan) => { setCredits(c => { supabase.addCredits(user.userId, c, add, plan, user.token); return c + add; }); }} />}
       {page === "render" && <RenderPage user={user} credits={credits} setCredits={setCredits} onNav={onNav} />}
+      {page === "terms" && <TermsPage onNav={onNav} />}
     </>
   );
 }
