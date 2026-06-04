@@ -1,6 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import TermsPage from "./Terms";
 
+function PageTransition({ children, pageKey }) {
+  return (
+    <div key={pageKey} className="page-transition">
+      {children}
+    </div>
+  );
+}
+
 const SUPABASE_URL = "https://slmplhhqkzfdlmpscsvj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsbXBsaGhxa3pmZGxtcHNjc3ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDk0MjIsImV4cCI6MjA5NTcyNTQyMn0.LbRgXMBku8hrrd-AJJtL3MJlKITlMuCc6LoDenEX8Mw";
 const API_BASE = "http://5.223.60.163:5678/webhook";
@@ -114,6 +122,14 @@ const G = `
 
 html { scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--text); font-family: var(--body); line-height: 1.6; overflow-x: hidden; }
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-transition {
+  animation: pageIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 /* NAV */
 .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 64px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
@@ -722,11 +738,13 @@ export default function App() {
           </div>
         </nav>
       )}
-      {page === "home" && <div style={{ paddingTop: 0 }}><HomePage onNav={onNav} /></div>}
-      {page === "auth" && <AuthPage onLogin={onLogin} onNav={onNav} />}
-      {page === "pricing" && <PricingPage user={user} onNav={onNav} isNewUser={isNewUser} setIsNewUser={setIsNewUser} onCreditsUpdate={(add, plan) => { setCredits(c => { supabase.addCredits(user.userId, c, add, plan, user.token); return c + add; }); }} />}
-      {page === "render" && <RenderPage user={user} credits={credits} setCredits={setCredits} onNav={onNav} />}
-      {page === "terms" && <TermsPage onNav={onNav} />}
+      <PageTransition pageKey={page}>
+        {page === "home" && <div style={{ paddingTop: 0 }}><HomePage onNav={onNav} /></div>}
+        {page === "auth" && <AuthPage onLogin={onLogin} onNav={onNav} />}
+        {page === "pricing" && <PricingPage user={user} onNav={onNav} isNewUser={isNewUser} setIsNewUser={setIsNewUser} onCreditsUpdate={(add, plan) => { setCredits(c => { supabase.addCredits(user.userId, c, add, plan, user.token); return c + add; }); }} />}
+        {page === "render" && <RenderPage user={user} credits={credits} setCredits={setCredits} onNav={onNav} />}
+        {page === "terms" && <TermsPage onNav={onNav} />}
+      </PageTransition>
     </>
   );
 }
