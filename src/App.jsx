@@ -11,7 +11,7 @@ function PageTransition({ children, pageKey }) {
 
 const SUPABASE_URL = "https://slmplhhqkzfdlmpscsvj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsbXBsaGhxa3pmZGxtcHNjc3ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDk0MjIsImV4cCI6MjA5NTcyNTQyMn0.LbRgXMBku8hrrd-AJJtL3MJlKITlMuCc6LoDenEX8Mw";
-const API_BASE = "http://5.223.60.163:5678/webhook";
+const API_BASE = "https://n8n.renviz.app/webhook";
 
 const supabase = {
   async signUp(email, password) {
