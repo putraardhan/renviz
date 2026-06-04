@@ -24,23 +24,6 @@ const supabase = {
   async signInWithGoogle() {
     window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${window.location.origin}`;
   },
-  saveSession(u) {
-    try { localStorage.setItem("renviz_v1", JSON.stringify(u)); } catch {}
-  },
-  clearSession() {
-    try { localStorage.removeItem("renviz_v1"); } catch {}
-  },
-  getSession() {
-    try { return JSON.parse(localStorage.getItem("renviz_v1")); } catch { return null; }
-  },
-  async refreshToken(refresh_token) {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
-      body: JSON.stringify({ refresh_token }),
-    });
-    return res.ok ? res.json() : null;
-  },
   async getCredits(userId, token) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/user_credits?id=eq.${userId}&select=credits,plan,is_new_user`, {
       headers: { "Authorization": `Bearer ${token}`, "apikey": SUPABASE_ANON_KEY },
@@ -406,7 +389,7 @@ function HomePage({ onNav }) {
         <div className="steps-grid">
           {[
             { icon: "📤", num: "01", title: "Upload your model", desc: "Export a JPG or PNG screenshot from SketchUp. Any angle, any style — just make sure the geometry is clear." },
-            { icon: "⚡", num: "02", title: "AI renders it", desc: "Renviz analyzes your model and generates a photorealistic render while preserving your exact design." },
+            { icon: "⚡", num: "02", title: "AI renders it", desc: "GPT Image 2 analyzes your model and generates a photorealistic render while preserving your exact design." },
             { icon: "📥", num: "03", title: "Download & use", desc: "Get a high-quality PNG render in seconds. Ready for presentations, proposals, or client pitches." },
           ].map(s => (
             <div className="step-card" data-num={s.num} key={s.num}>
@@ -619,88 +602,38 @@ export default function App() {
     if (p !== "render") window.scrollTo(0, 0);
   };
 
-  const [sessionLoading, setSessionLoading] = useState(true);
-
-  const applyUser = async (u) => {
-    supabase.saveSession(u);
+  const onLogin = async (u) => {
     setUser(u);
     const d = await supabase.getCredits(u.userId, u.token);
     setCredits(d?.credits ?? 0);
     setIsNewUser(d?.is_new_user ?? false);
-    setPage("render");
-  };
-
-  const onLogin = async (u) => {
-    await applyUser(u);
+    setPage("pricing");
   };
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        const hash = window.location.hash;
-
-        // ── OAuth callback dari Google ──
-        if (hash.includes("access_token")) {
-          const p = new URLSearchParams(hash.substring(1));
-          const token = p.get("access_token");
-          const refresh_token = p.get("refresh_token");
-          const expires_in = parseInt(p.get("expires_in") || "3600");
-          window.history.replaceState({}, "", "/");
-
-          const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-            headers: { "Authorization": `Bearer ${token}`, "apikey": SUPABASE_ANON_KEY }
-          });
-          const ud = await res.json();
-          if (ud.id) {
-            await applyUser({
-              token, refresh_token,
-              expires_at: Date.now() + expires_in * 1000,
-              userId: ud.id, email: ud.email,
-            });
+    const hash = window.location.hash;
+    if (hash && hash.includes("access_token")) {
+      const params = new URLSearchParams(hash.substring(1));
+      const token = params.get("access_token");
+      if (token) {
+        fetch(`${SUPABASE_URL}/auth/v1/user`, {
+          headers: { "Authorization": `Bearer ${token}`, "apikey": SUPABASE_ANON_KEY }
+        })
+        .then(r => r.json())
+        .then(async (userData) => {
+          if (userData.id) {
+            window.history.replaceState({}, "", "/");
+            const u = { token, userId: userData.id, email: userData.email };
+            setUser(u);
+            const d = await supabase.getCredits(userData.id, token);
+            setCredits(d?.credits ?? 0);
+            setIsNewUser(d?.is_new_user ?? false);
+            setPage("pricing");
           }
-          return;
-        }
-
-        // ── Restore session dari localStorage ──
-        const saved = supabase.getSession();
-        if (!saved?.token) return;
-
-        let { token, refresh_token, expires_at, userId, email } = saved;
-        const needsRefresh = expires_at && Date.now() > expires_at - 5 * 60 * 1000;
-
-        if (needsRefresh) {
-          if (!refresh_token) { supabase.clearSession(); return; }
-          const r = await supabase.refreshToken(refresh_token);
-          if (!r?.access_token) { supabase.clearSession(); return; }
-          token = r.access_token;
-          const u = {
-            token,
-            refresh_token: r.refresh_token || refresh_token,
-            expires_at: Date.now() + (r.expires_in || 3600) * 1000,
-            userId, email,
-          };
-          await applyUser(u);
-        } else {
-          await applyUser(saved);
-        }
-      } catch {
-        supabase.clearSession();
-      } finally {
-        setSessionLoading(false);
+        });
       }
-    };
-    init();
+    }
   }, []);
-
-  if (sessionLoading) return (
-    <>
-      <style>{G}</style>
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", flexDirection: "column", gap: 16 }}>
-        <div style={{ width: 36, height: 36, border: "3px solid #e8e8e4", borderTopColor: "#f05a28", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-        <span style={{ fontFamily: "Space Mono, monospace", fontSize: 13, color: "#888" }}>renviz<span style={{color:"#f05a28"}}>.app</span></span>
-      </div>
-    </>
-  );
 
   return (
     <>
@@ -712,7 +645,7 @@ export default function App() {
             <button className="nav-link" onClick={() => onNav("pricing")}>Pricing</button>
             {user ? (
               <><button className="nav-link" onClick={() => onNav("render")}>Dashboard</button>
-              <button className="nav-cta" onClick={() => { supabase.clearSession(); setUser(null); setIsNewUser(false); setPage("home"); }}>Sign Out</button></>
+              <button className="nav-cta" onClick={() => { setUser(null); setIsNewUser(false); setPage("home"); }}>Sign Out</button></>
             ) : (
               <><button className="nav-link" onClick={() => setPage("auth")}>Sign In</button>
               <button className="nav-cta" onClick={() => setPage("auth")}>Get Started →</button></>
