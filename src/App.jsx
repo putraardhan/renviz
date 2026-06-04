@@ -410,7 +410,7 @@ function HomePage({ onNav }) {
         <div className="hero-left fade-up">
           <div className="hero-tag">AI Architectural Rendering</div>
           <h1 className="hero-h1">Turning Models<br />Into <em>Reality</em></h1>
-          <p className="hero-sub">Transform your SketchUp models into stunning photorealistic renders with the power of AI — faster, easier, and more affordable than traditional rendering.</p>
+          <p className="hero-sub">Transform your SketchUp models into stunning photorealistic renders with the power of AI, faster, easier, and more affordable than traditional rendering.</p>
           <div className="hero-actions">
             <button className="btn-primary" onClick={() => onNav("render")}>
               Render Now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -433,7 +433,7 @@ function HomePage({ onNav }) {
         <div className="steps-grid">
           {[
             { icon: "📤", num: "01", title: "Upload your model", desc: "Export a JPG or PNG screenshot from SketchUp. Any angle, any style — just make sure the geometry is clear." },
-            { icon: "⚡", num: "02", title: "AI renders it", desc: "GPT Image 2 analyzes your model and generates a photorealistic render while preserving your exact design." },
+            { icon: "⚡", num: "02", title: "AI renders it", desc: "Renviz analyzes your model and generates a photorealistic render while preserving your exact design." },
             { icon: "📥", num: "03", title: "Download & use", desc: "Get a high-quality PNG render in seconds. Ready for presentations, proposals, or client pitches." },
           ].map(s => (
             <div className="step-card" data-num={s.num} key={s.num}>
