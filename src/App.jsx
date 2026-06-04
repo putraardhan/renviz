@@ -471,8 +471,11 @@ function PricingPage({ user, onNav, onCreditsUpdate, isNewUser, setIsNewUser }) 
     setPurchasing(plan.id);
     await new Promise(r => setTimeout(r, 1500));
     setPurchasing(null); setDone(true);
-    if (plan.newUserOnly) { setIsNewUser(false); supabase.setNewUserFalse(user.userId, user.token); }
-    else if (onCreditsUpdate) onCreditsUpdate(plan.credits, plan.id);
+    if (plan.newUserOnly) {
+      setIsNewUser(false);
+      supabase.setNewUserFalse(user.userId, user.token);
+      if (onCreditsUpdate) onCreditsUpdate(plan.credits, plan.id);
+    } else if (onCreditsUpdate) onCreditsUpdate(plan.credits, plan.id);
     setTimeout(() => { setDone(false); onNav("render"); }, 1800);
   };
 
