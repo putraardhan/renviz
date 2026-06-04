@@ -563,9 +563,10 @@ function RenderPage({ user, credits, setCredits, onNav }) {
       const body = new Uint8Array(pre.length + fb2.length + post.length);
       body.set(pre, 0); body.set(fb2, pre.length); body.set(post, pre.length + fb2.length);
       const res = await fetch(`${API_BASE}/upload`, { method: "POST", headers: { "Content-Type": `multipart/form-data; boundary=${boundary}` }, body });
-      const raw = await res.json();
-      const result = Array.isArray(raw) ? raw[0] : raw;
-      if (!res.ok || !result.public_url) throw new Error(result.message || "Upload failed");
+      const text = await res.text();
+      let result;
+      try { const raw = JSON.parse(text); result = Array.isArray(raw) ? raw[0] : raw; } catch { throw new Error('Invalid response'); }
+      if (!result.public_url) throw new Error(result.message || 'Upload failed');
       setImageUrl(result.public_url); setUploadStatus("done"); setUploadMsg(result.public_url.split("/").pop());
     } catch (err) { setUploadStatus("error"); setUploadMsg("Upload failed"); setError("Upload error: " + err.message); }
   };
