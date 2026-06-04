@@ -406,7 +406,7 @@ function HomePage({ onNav }) {
         <div className="steps-grid">
           {[
             { icon: "📤", num: "01", title: "Upload your model", desc: "Export a JPG or PNG screenshot from SketchUp. Any angle, any style — just make sure the geometry is clear." },
-            { icon: "⚡", num: "02", title: "AI renders it", desc: "GPT Image 2 analyzes your model and generates a photorealistic render while preserving your exact design." },
+            { icon: "⚡", num: "02", title: "AI renders it", desc: "Renviz analyzes your model and generates a photorealistic render while preserving your exact design." },
             { icon: "📥", num: "03", title: "Download & use", desc: "Get a high-quality PNG render in seconds. Ready for presentations, proposals, or client pitches." },
           ].map(s => (
             <div className="step-card" data-num={s.num} key={s.num}>
