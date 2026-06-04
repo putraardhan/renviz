@@ -521,6 +521,36 @@ function RenderPage({ user, credits, setCredits, onNav }) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
+  const compressImage = (file, maxSizeMB = 2) => new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        const maxDim = 1920;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        const tryCompress = (quality) => {
+          canvas.toBlob((blob) => {
+            if (blob.size <= maxSizeMB * 1024 * 1024 || quality <= 0.3) {
+              resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+            } else {
+              tryCompress(quality - 0.1);
+            }
+          }, 'image/jpeg', quality);
+        };
+        tryCompress(0.85);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
   const uploadFile = async (f) => {
     setUploadStatus("uploading"); setUploadMsg("Uploading..."); setError(null);
     try {
