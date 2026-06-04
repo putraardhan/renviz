@@ -24,6 +24,23 @@ const supabase = {
   async signInWithGoogle() {
     window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${window.location.origin}`;
   },
+  saveSession(u) {
+    try { localStorage.setItem("renviz_v1", JSON.stringify(u)); } catch {}
+  },
+  clearSession() {
+    try { localStorage.removeItem("renviz_v1"); } catch {}
+  },
+  getSession() {
+    try { return JSON.parse(localStorage.getItem("renviz_v1")); } catch { return null; }
+  },
+  async refreshToken(refresh_token) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
+      body: JSON.stringify({ refresh_token }),
+    });
+    return res.ok ? res.json() : null;
+  },
   async getCredits(userId, token) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/user_credits?id=eq.${userId}&select=credits,plan,is_new_user`, {
       headers: { "Authorization": `Bearer ${token}`, "apikey": SUPABASE_ANON_KEY },
@@ -153,7 +170,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); line
 .step-p { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
 /* PRICING */
-.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; } .pricing-bottom { display: flex; justify-content: center; margin-top: 20px; } .pricing-bottom .price-card { width: calc(33.333% - 14px); min-width: 260px; }
 .price-card { padding: 28px 24px; border-radius: var(--radius-lg); border: 1.5px solid var(--border); background: var(--bg); position: relative; transition: all 0.2s; display: flex; flex-direction: column; }
 .price-card:hover { border-color: var(--text); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
 .price-card.featured { background: var(--dark); border-color: var(--dark); color: white; }
@@ -335,27 +352,37 @@ const PLANS = [
 ];
 
 function PricingCards({ onNav, isNewUser, onPurchase, purchasing }) {
-  return (
-    <div className="pricing-grid">
-      {PLANS.map((p) => {
-        if (p.newUserOnly && !isNewUser) return null;
-        return (
-          <div className={`price-card ${p.featured ? "featured" : ""} ${p.newUserOnly ? "new-user" : ""}`} key={p.id}>
-            <div className={`price-badge ${p.badge}`}>{p.badgeText}</div>
-            <div className="price-name">{p.name}</div>
-            <div className="price-desc">{p.desc}</div>
-            <div className="price-amount">{p.price}</div>
-            <div className="price-per">{p.credits} credits · {p.perRender}</div>
-            <div className="price-features">{p.features.map(f => <div className="price-feature" key={f}>{f}</div>)}</div>
-            <button className={`price-btn ${p.btnClass}`}
-              onClick={() => onPurchase ? onPurchase(p) : onNav("auth")}
-              disabled={purchasing === p.id}>
-              {purchasing === p.id ? "Processing..." : p.btnText}
-            </button>
-          </div>
-        );
-      })}
+  const mainPlans = PLANS.filter(p => !p.newUserOnly);
+  const trialPlan = PLANS.find(p => p.newUserOnly);
+  const showTrial = isNewUser || !onPurchase;
+
+  const renderCard = (p) => (
+    <div className={`price-card ${p.featured ? "featured" : ""} ${p.newUserOnly ? "new-user" : ""}`} key={p.id}>
+      <div className={`price-badge ${p.badge}`}>{p.badgeText}</div>
+      <div className="price-name">{p.name}</div>
+      <div className="price-desc">{p.desc}</div>
+      <div className="price-amount">{p.price}</div>
+      <div className="price-per">{p.credits} credits · {p.perRender}</div>
+      <div className="price-features">{p.features.map(f => <div className="price-feature" key={f}>{f}</div>)}</div>
+      <button className={`price-btn ${p.btnClass}`}
+        onClick={() => onPurchase ? onPurchase(p) : onNav("auth")}
+        disabled={purchasing === p.id}>
+        {purchasing === p.id ? "Processing..." : p.btnText}
+      </button>
     </div>
+  );
+
+  return (
+    <>
+      <div className="pricing-grid">
+        {mainPlans.map(p => renderCard(p))}
+      </div>
+      {trialPlan && showTrial && (
+        <div className="pricing-bottom">
+          {renderCard(trialPlan)}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -602,7 +629,10 @@ export default function App() {
     if (p !== "render") window.scrollTo(0, 0);
   };
 
+  const [sessionLoading, setSessionLoading] = useState(true);
+
   const onLogin = async (u) => {
+    supabase.saveSession(u);
     setUser(u);
     const d = await supabase.getCredits(u.userId, u.token);
     setCredits(d?.credits ?? 0);
@@ -611,29 +641,63 @@ export default function App() {
   };
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash && hash.includes("access_token")) {
-      const params = new URLSearchParams(hash.substring(1));
-      const token = params.get("access_token");
-      if (token) {
-        fetch(`${SUPABASE_URL}/auth/v1/user`, {
-          headers: { "Authorization": `Bearer ${token}`, "apikey": SUPABASE_ANON_KEY }
-        })
-        .then(r => r.json())
-        .then(async (userData) => {
-          if (userData.id) {
-            window.history.replaceState({}, "", "/");
-            const u = { token, userId: userData.id, email: userData.email };
+    const init = async () => {
+      try {
+        const hash = window.location.hash;
+        if (hash.includes("access_token")) {
+          const p = new URLSearchParams(hash.substring(1));
+          const token = p.get("access_token");
+          const refresh_token = p.get("refresh_token");
+          const expires_in = parseInt(p.get("expires_in") || "3600");
+          window.history.replaceState({}, "", "/");
+          const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+            headers: { "Authorization": `Bearer ${token}`, "apikey": SUPABASE_ANON_KEY }
+          });
+          const ud = await res.json();
+          if (ud.id) {
+            const u = { token, refresh_token, expires_at: Date.now() + expires_in * 1000, userId: ud.id, email: ud.email };
+            supabase.saveSession(u);
             setUser(u);
-            const d = await supabase.getCredits(userData.id, token);
+            const d = await supabase.getCredits(ud.id, token);
             setCredits(d?.credits ?? 0);
             setIsNewUser(d?.is_new_user ?? false);
             setPage("pricing");
           }
-        });
-      }
-    }
+          return;
+        }
+        const saved = supabase.getSession();
+        if (!saved?.token) return;
+        let { token, refresh_token, expires_at, userId, email } = saved;
+        if (expires_at && Date.now() > expires_at - 5 * 60 * 1000) {
+          if (!refresh_token) { supabase.clearSession(); return; }
+          const r = await supabase.refreshToken(refresh_token);
+          if (!r?.access_token) { supabase.clearSession(); return; }
+          token = r.access_token;
+          const u = { token, refresh_token: r.refresh_token || refresh_token, expires_at: Date.now() + (r.expires_in || 3600) * 1000, userId, email };
+          supabase.saveSession(u);
+          setUser(u);
+        } else {
+          setUser(saved);
+        }
+        const d = await supabase.getCredits(userId, token);
+        setCredits(d?.credits ?? 0);
+        setIsNewUser(d?.is_new_user ?? false);
+        setPage("render");
+      } catch { supabase.clearSession(); }
+      finally { setSessionLoading(false); }
+    };
+    init();
   }, []);
+
+  if (sessionLoading) return (
+    <>
+      <style>{G}</style>
+      <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#fff", flexDirection:"column", gap:16 }}>
+        <div style={{ width:36, height:36, border:"3px solid #e8e8e4", borderTopColor:"#f05a28", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
+        <span style={{ fontFamily:"Space Mono,monospace", fontSize:13, color:"#888" }}>renviz<span style={{color:"#f05a28"}}>.app</span></span>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -645,7 +709,7 @@ export default function App() {
             <button className="nav-link" onClick={() => onNav("pricing")}>Pricing</button>
             {user ? (
               <><button className="nav-link" onClick={() => onNav("render")}>Dashboard</button>
-              <button className="nav-cta" onClick={() => { setUser(null); setIsNewUser(false); setPage("home"); }}>Sign Out</button></>
+              <button className="nav-cta" onClick={() => { supabase.clearSession(); setUser(null); setIsNewUser(false); setPage("home"); }}>Sign Out</button></>
             ) : (
               <><button className="nav-link" onClick={() => setPage("auth")}>Sign In</button>
               <button className="nav-cta" onClick={() => setPage("auth")}>Get Started →</button></>
