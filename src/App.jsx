@@ -554,18 +554,13 @@ function RenderPage({ user, credits, setCredits, onNav }) {
   const uploadFile = async (f) => {
     setUploadStatus("uploading"); setUploadMsg("Uploading..."); setError(null);
     try {
-      const boundary = "----RenvizBoundary" + Date.now();
-      const encoder = new TextEncoder();
-      const fb = await f.arrayBuffer();
-      const fb2 = new Uint8Array(fb);
-      const pre = encoder.encode(`--${boundary}\r\nContent-Disposition: form-data; name="user_id"\r\n\r\n${user.userId}\r\n--${boundary}\r\nContent-Disposition: form-data; name="data"; filename="${f.name}"\r\nContent-Type: ${f.type}\r\n\r\n`);
-      const post = encoder.encode(`\r\n--${boundary}--`);
-      const body = new Uint8Array(pre.length + fb2.length + post.length);
-      body.set(pre, 0); body.set(fb2, pre.length); body.set(post, pre.length + fb2.length);
-      const res = await fetch(`${API_BASE}/upload`, { method: "POST", headers: { "Content-Type": `multipart/form-data; boundary=${boundary}` }, body });
+      const formData = new FormData();
+      formData.append("user_id", user.userId);
+      formData.append("data", f, f.name);
+      const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: formData });
       const text = await res.text();
       let result;
-      try { const raw = JSON.parse(text); result = Array.isArray(raw) ? raw[0] : raw; } catch { throw new Error('Invalid response'); }
+      try { const raw = JSON.parse(text); result = Array.isArray(raw) ? raw[0] : raw; } catch { throw new Error('Invalid response: ' + text.substring(0, 100)); }
       if (!result.public_url) throw new Error(result.message || 'Upload failed');
       setImageUrl(result.public_url); setUploadStatus("done"); setUploadMsg(result.public_url.split("/").pop());
     } catch (err) { setUploadStatus("error"); setUploadMsg("Upload failed"); setError("Upload error: " + err.message); }
