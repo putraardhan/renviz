@@ -483,18 +483,44 @@ function PricingPage({ user, onNav, onCreditsUpdate, isNewUser, setIsNewUser }) 
   const [purchasing, setPurchasing] = useState(null);
   const [done, setDone] = useState(false);
 
-  const handlePurchase = async (plan) => {
-    if (!user) { onNav("auth"); return; }
-    setPurchasing(plan.id);
-    await new Promise(r => setTimeout(r, 1500));
-    setPurchasing(null); setDone(true);
-    if (plan.newUserOnly) {
-      setIsNewUser(false);
-      supabase.setNewUserFalse(user.userId, user.token);
-      if (onCreditsUpdate) onCreditsUpdate(plan.credits, plan.id);
-    } else if (onCreditsUpdate) onCreditsUpdate(plan.credits, plan.id);
-    setTimeout(() => { setDone(false); onNav("render"); }, 1800);
-  };
+const handlePurchase = async (plan) => {
+  if (!user) { onNav("auth"); return; }
+  setPurchasing(plan.id);
+  try {
+    // Request snap token dari n8n
+    const res = await fetch(`${API_BASE}/midtrans-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: user.userId, package: plan.id }),
+    });
+    const { snap_token } = await res.json();
+
+    // Buka Midtrans Snap popup
+    window.snap.pay(snap_token, {
+      onSuccess: () => {
+        setDone(true);
+        if (plan.newUserOnly) {
+          setIsNewUser(false);
+          supabase.setNewUserFalse(user.userId, user.token);
+        }
+        if (onCreditsUpdate) onCreditsUpdate(plan.credits, plan.id);
+        setTimeout(() => { setDone(false); onNav("render"); }, 1800);
+      },
+      onPending: () => {
+        setPurchasing(null);
+      },
+      onError: () => {
+        setPurchasing(null);
+      },
+      onClose: () => {
+        setPurchasing(null);
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    setPurchasing(null);
+  }
+};
 
   return (
     <div style={{ paddingTop: 64 }}>
