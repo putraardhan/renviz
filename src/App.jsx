@@ -644,7 +644,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
           </button>
         </div>
       </div>
-      <div className="render-body">
+      <div className="render-body" style={{ paddingTop: "24px" }}>
         {credits === 0 && (
           <div className="no-credits-banner">
             <span className="no-credits-text">⚡ You're out of credits. Purchase more to continue rendering.</span>
@@ -680,7 +680,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
             </button>
           </div>
           <p style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center", maxWidth: "480px", lineHeight: 1.6 }}>
-            ⚠️ Pastikan mode yang dipilih sesuai dengan gambar yang diupload. Memilih mode yang salah dapat menghasilkan render yang tidak sesuai.
+            ⚠️ Pastikan mode yang dipilih sesuai dengan gambar yang diupload. Memilih mode yang salah dapat menghasilkan Output render yang tidak sesuai.
           </p>
         </div>
         <div className="render-grid">
