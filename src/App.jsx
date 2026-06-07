@@ -644,7 +644,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
           </button>
         </div>
       </div>
-      <div className="render-body" style={{ paddingTop: "24px" }}>
+      <div className="render-body" style={{ paddingTop: "18px" }}>
         {credits === 0 && (
           <div className="no-credits-banner">
             <span className="no-credits-text">⚡ You're out of credits. Purchase more to continue rendering.</span>
@@ -679,7 +679,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
               Interior
             </button>
           </div>
-          <p style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center", maxWidth: "480px", lineHeight: 1.6, fontStyle: "italic" }}>
+          <p style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center", maxWidth: "500px", lineHeight: 1.6, fontStyle: "italic" }}>
             Attention: Please make sure the selected mode matches your uploaded image. Choosing the wrong mode may result in an inaccurate render output.
           </p>
         </div>
