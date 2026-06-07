@@ -637,6 +637,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
       <div className="render-header">
         <div className="render-logo" onClick={() => onNav("home")}>renviz<span>.app</span></div>
         <div className="render-user">
+          <span style={{ fontSize: "13px", color: "var(--muted)", fontFamily: "var(--mono)" }}>{user?.email}</span>
           <div className="credit-pill"><strong>{credits}</strong> credits</div>
           <button className="hdr-btn-accent" onClick={() => onNav("pricing")}>+ Buy Credits</button>
           <button className="hdr-btn" onClick={() => onNav("home")} title="Home" style={{ padding: "6px 10px" }}>
@@ -719,7 +720,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
             </div>
           </div>
         </div>
-        <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text">{user?.email}</span><span className="r-footer-text" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => onNav("terms")}>Terms & Conditions</span></div>
+        <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => onNav("terms")}>Terms & Conditions</span></div>
       </div>
     </div>
   );
