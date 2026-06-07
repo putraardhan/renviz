@@ -645,70 +645,61 @@ function RenderPage({ user, credits, setCredits, onNav }) {
           </button>
         </div>
       </div>
-      <div className="render-body" style={{ paddingTop: "18px" }}>
+      <div className="render-body" style={{ paddingTop: "12px" }}>
         {credits === 0 && (
           <div className="no-credits-banner">
             <span className="no-credits-text">⚡ You're out of credits. Purchase more to continue rendering.</span>
             <button className="no-credits-btn" onClick={() => onNav("pricing")}>Buy Credits</button>
           </div>
         )}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "32px", gap: "16px" }}>
-          {/* Mode Label */}
-          <p style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "3px", textTransform: "uppercase", color: "var(--muted)", fontFamily: "var(--mono)", margin: 0 }}>Select Mode</p>
-
-          {/* Toggle Pill */}
-          <div style={{
-            display: "flex",
-            background: "var(--surface, #f4f2ef)",
-            borderRadius: "12px",
-            padding: "4px",
-            gap: "4px",
-            border: "1px solid var(--border)"
-          }}>
-            {[
-              { id: "exterior", label: "Exterior", icon: "⬡" },
-              { id: "interior", label: "Interior", icon: "⬢" }
-            ].map(item => (
-              <button
-                key={item.id}
-                onClick={() => setMode(item.id)}
-                style={{
-                  padding: "10px 36px",
-                  borderRadius: "9px",
-                  border: "none",
-                  background: mode === item.id ? "#fff" : "transparent",
-                  color: mode === item.id ? "var(--accent)" : "var(--muted)",
-                  fontWeight: mode === item.id ? "700" : "500",
-                  fontSize: "13px",
-                  cursor: "pointer",
-                  fontFamily: "var(--body)",
-                  transition: "all 0.2s",
-                  boxShadow: mode === item.id ? "0 1px 4px rgba(0,0,0,0.10)" : "none",
-                  letterSpacing: "0.3px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px"
-                }}>
-                <span style={{ fontSize: "11px", opacity: 0.7 }}>{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "10px" }}>
+          {/* Mode Toggle — kiri */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#111", fontFamily: "var(--body)" }}>Mode</span>
+            <div style={{
+              display: "flex",
+              background: "#ece9e4",
+              borderRadius: "10px",
+              padding: "3px",
+              gap: "3px",
+              border: "1px solid var(--border)"
+            }}>
+              {[{ id: "exterior", label: "Exterior" }, { id: "interior", label: "Interior" }].map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => setMode(item.id)}
+                  style={{
+                    padding: "7px 24px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background: mode === item.id ? "#fff" : "transparent",
+                    color: mode === item.id ? "var(--accent)" : "var(--muted)",
+                    fontWeight: mode === item.id ? "700" : "500",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    fontFamily: "var(--body)",
+                    transition: "all 0.18s",
+                    boxShadow: mode === item.id ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+                  }}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Attention Text */}
+          {/* Attention — kanan */}
           <div style={{
             display: "flex",
-            alignItems: "flex-start",
-            gap: "8px",
+            alignItems: "center",
+            gap: "7px",
             background: "rgba(224, 107, 58, 0.06)",
             border: "1px solid rgba(224, 107, 58, 0.18)",
             borderRadius: "8px",
-            padding: "10px 16px",
-            maxWidth: "480px"
+            padding: "7px 14px",
           }}>
-            <span style={{ fontSize: "13px", color: "var(--accent)", marginTop: "1px", flexShrink: 0 }}>ⓘ</span>
-            <p style={{ fontSize: "12px", color: "var(--muted)", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
-              Please make sure the selected mode matches your uploaded image. Choosing the wrong mode may result in an inaccurate render output.
+            <span style={{ fontSize: "13px", color: "var(--accent)", flexShrink: 0 }}>ⓘ</span>
+            <p style={{ fontSize: "11.5px", color: "var(--muted)", lineHeight: 1.5, margin: 0, fontStyle: "italic", fontFamily: "var(--body)" }}>
+              Make sure the selected mode matches your uploaded image.
             </p>
           </div>
         </div>
