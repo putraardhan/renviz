@@ -652,6 +652,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "24px", gap: "12px" }}>
+        <p style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "var(--muted)", fontFamily: "var(--body)" }}>Mode</p>
           <div style={{ display: "flex", gap: "8px" }}>
             <button
               onClick={() => setMode("exterior")}
@@ -663,7 +664,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
                 fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "var(--body)",
                 transition: "all 0.2s"
               }}>
-              🏠 Exterior
+               Exterior
             </button>
             <button
               onClick={() => setMode("interior")}
