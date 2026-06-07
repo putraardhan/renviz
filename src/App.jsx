@@ -545,6 +545,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
   const [renderMsg, setRenderMsg] = useState("RENDERING...");
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
+  const [mode, setMode] = useState("exterior");
   const fileInputRef = useRef(null);
 
   const compressImage = (file, maxSizeMB = 2) => new Promise((resolve) => {
@@ -605,7 +606,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
     let mi = 0;
     const iv = setInterval(() => { mi = (mi + 1) % msgs.length; setRenderMsg(msgs[mi]); }, 3000);
     try {
-      const res = await fetch(`${API_BASE}/render`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id: user.userId, image_url: imageUrl }) });
+      const res = await fetch(`${API_BASE}/render`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id: user.userId, image_url: imageUrl, mode: mode }) });
       const data = await res.json();
       clearInterval(iv);
       if (!res.ok || data._route === "gagal") throw new Error(data.message || "Render failed");
@@ -652,6 +653,32 @@ function RenderPage({ user, credits, setCredits, onNav }) {
           <div className="r-panel">
             <div className="r-panel-header"><span className="r-panel-num">01</span><span className="r-panel-title">Input Image</span></div>
             <div className="r-panel-body">
+              <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+                <button
+                  onClick={() => setMode("exterior")}
+                  style={{
+                    flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid",
+                    borderColor: mode === "exterior" ? "var(--accent)" : "var(--border)",
+                    background: mode === "exterior" ? "var(--accent-light)" : "transparent",
+                    color: mode === "exterior" ? "var(--accent)" : "var(--muted)",
+                    fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "var(--body)",
+                    transition: "all 0.2s"
+                  }}>
+                  🏠 Exterior
+                </button>
+                <button
+                  onClick={() => setMode("interior")}
+                  style={{
+                    flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid",
+                    borderColor: mode === "interior" ? "var(--accent)" : "var(--border)",
+                    background: mode === "interior" ? "var(--accent-light)" : "transparent",
+                    color: mode === "interior" ? "var(--accent)" : "var(--muted)",
+                    fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "var(--body)",
+                    transition: "all 0.2s"
+                  }}>
+                  🛋️ Interior
+                </button>
+              </div>
               <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files[0] && handleFile(e.target.files[0])} />
               <div className={`drop-zone ${dragOver ? "drag-over" : ""} ${previewUrl ? "has-image" : ""}`}
                 onClick={() => fileInputRef.current.click()}
