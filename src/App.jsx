@@ -652,37 +652,65 @@ function RenderPage({ user, credits, setCredits, onNav }) {
             <button className="no-credits-btn" onClick={() => onNav("pricing")}>Buy Credits</button>
           </div>
         )}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "24px", gap: "12px" }}>
-        <p style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "var(--muted)", fontFamily: "var(--body)" }}>Mode</p>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button
-              onClick={() => setMode("exterior")}
-              style={{
-                padding: "10px 32px", borderRadius: "8px", border: "1.5px solid",
-                borderColor: mode === "exterior" ? "var(--accent)" : "var(--border)",
-                background: mode === "exterior" ? "var(--accent-light)" : "transparent",
-                color: mode === "exterior" ? "var(--accent)" : "var(--muted)",
-                fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "var(--body)",
-                transition: "all 0.2s"
-              }}>
-               Exterior
-            </button>
-            <button
-              onClick={() => setMode("interior")}
-              style={{
-                padding: "10px 32px", borderRadius: "8px", border: "1.5px solid",
-                borderColor: mode === "interior" ? "var(--accent)" : "var(--border)",
-                background: mode === "interior" ? "var(--accent-light)" : "transparent",
-                color: mode === "interior" ? "var(--accent)" : "var(--muted)",
-                fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "var(--body)",
-                transition: "all 0.2s"
-              }}>
-              Interior
-            </button>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "32px", gap: "16px" }}>
+          {/* Mode Label */}
+          <p style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "3px", textTransform: "uppercase", color: "var(--muted)", fontFamily: "var(--mono)", margin: 0 }}>Select Mode</p>
+
+          {/* Toggle Pill */}
+          <div style={{
+            display: "flex",
+            background: "var(--surface, #f4f2ef)",
+            borderRadius: "12px",
+            padding: "4px",
+            gap: "4px",
+            border: "1px solid var(--border)"
+          }}>
+            {[
+              { id: "exterior", label: "Exterior", icon: "⬡" },
+              { id: "interior", label: "Interior", icon: "⬢" }
+            ].map(item => (
+              <button
+                key={item.id}
+                onClick={() => setMode(item.id)}
+                style={{
+                  padding: "10px 36px",
+                  borderRadius: "9px",
+                  border: "none",
+                  background: mode === item.id ? "#fff" : "transparent",
+                  color: mode === item.id ? "var(--accent)" : "var(--muted)",
+                  fontWeight: mode === item.id ? "700" : "500",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  fontFamily: "var(--body)",
+                  transition: "all 0.2s",
+                  boxShadow: mode === item.id ? "0 1px 4px rgba(0,0,0,0.10)" : "none",
+                  letterSpacing: "0.3px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}>
+                <span style={{ fontSize: "11px", opacity: 0.7 }}>{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
           </div>
-          <p style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center", maxWidth: "500px", lineHeight: 1.6, fontStyle: "italic" }}>
-            Attention: Please make sure the selected mode matches your uploaded image. Choosing the wrong mode may result in an inaccurate render output.
-          </p>
+
+          {/* Attention Text */}
+          <div style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "8px",
+            background: "rgba(224, 107, 58, 0.06)",
+            border: "1px solid rgba(224, 107, 58, 0.18)",
+            borderRadius: "8px",
+            padding: "10px 16px",
+            maxWidth: "480px"
+          }}>
+            <span style={{ fontSize: "13px", color: "var(--accent)", marginTop: "1px", flexShrink: 0 }}>ⓘ</span>
+            <p style={{ fontSize: "12px", color: "var(--muted)", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
+              Please make sure the selected mode matches your uploaded image. Choosing the wrong mode may result in an inaccurate render output.
+            </p>
+          </div>
         </div>
         <div className="render-grid">
           <div className="r-panel">
