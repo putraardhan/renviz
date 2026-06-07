@@ -676,11 +676,11 @@ function RenderPage({ user, credits, setCredits, onNav }) {
                 fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "var(--body)",
                 transition: "all 0.2s"
               }}>
-              🛋️ Interior
+              Interior
             </button>
           </div>
-          <p style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center", maxWidth: "480px", lineHeight: 1.6 }}>
-            ⚠️ Pastikan mode yang dipilih sesuai dengan gambar yang diupload. Memilih mode yang salah dapat menghasilkan Output render yang tidak sesuai.
+          <p style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center", maxWidth: "480px", lineHeight: 1.6, fontStyle: "italic" }}>
+            Attention: Please make sure the selected mode matches your uploaded image. Choosing the wrong mode may result in an inaccurate render output.
           </p>
         </div>
         <div className="render-grid">
