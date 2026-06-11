@@ -43,7 +43,7 @@ export default function TermsPage({ onNav }) {
           {
             num: "04",
             title: "Hak Cipta",
-            content: "Seluruh konten pada situs ini, termasuk merek dagang, logo, antarmuka, dan materi lainnya, adalah milik Renviz.app dan Artra Group, serta dilindungi oleh hukum hak cipta yang berlaku di Indonesia. Dilarang menyalin, mereproduksi, atau mendistribusikan konten tanpa izin tertulis sebelumnya.",
+            content: "Seluruh konten pada situs ini, termasuk merek dagang, logo, antarmuka, dan materi lainnya, adalah milik Renviz.app dan Renviz App, serta dilindungi oleh hukum hak cipta yang berlaku di Indonesia. Dilarang menyalin, mereproduksi, atau mendistribusikan konten tanpa izin tertulis sebelumnya.",
           },
           {
             num: "05",
