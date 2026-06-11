@@ -362,10 +362,10 @@ function BeforeAfterSlider({ beforeSrc, afterSrc }) {
 }
 
 const PLANS = [
-  { id: "trial", badge: "trial", badgeText: "New User Only", name: "Trial", desc: "Try before you commit", price: "Rp9.000", credits: 3, perRender: "Rp3K/render", features: ["3 AI renders", "PNG output", "One-time offer for new accounts"], btnClass: "price-btn-accent", btnText: "Claim Trial", newUserOnly: true },
-  { id: "basic", badge: "basic", badgeText: "Basic", name: "Basic", desc: "For occasional use", price: "Rp19.900", credits: 4, perRender: "Rp4.975/render", features: ["4 AI renders", "PNG output", "No expiry"], btnClass: "price-btn-light", btnText: "Buy Basic" },
-  { id: "pro", badge: "pro", badgeText: "Pro", name: "Pro", desc: "Best value", price: "Rp48.900", credits: 10, perRender: "Rp4.890/render", features: ["10 AI renders", "PNG output", "No expiry", "Priority queue"], btnClass: "price-btn-white", btnText: "Buy Pro", featured: true },
-  { id: "studio", badge: "studio", badgeText: "Studio", name: "Studio", desc: "For power users", price: "Rp99.800", credits: 25, perRender: "Rp3.992/render", features: ["25 AI renders", "PNG output", "No expiry", "Priority queue", "Bulk savings"], btnClass: "price-btn-light", btnText: "Buy Studio" },
+  { id: "trial", badge: "trial", badgeText: "New User Only", name: "Trial", desc: "Try before you commit", price: "Rp3.200", credits: 2, perRender: "Rp1.600/render", features: ["2 AI renders", "PNG output", "One-time offer for new accounts"], btnClass: "price-btn-accent", btnText: "Claim Trial", newUserOnly: true },
+  { id: "basic", badge: "basic", badgeText: "Basic", name: "Basic", desc: "For occasional use", price: "Rp9.900", credits: 4, perRender: "Rp2.475/render", features: ["4 AI renders", "PNG output", "No expiry"], btnClass: "price-btn-light", btnText: "Buy Basic" },
+  { id: "pro", badge: "pro", badgeText: "Pro", name: "Pro", desc: "Best value", price: "Rp23.700", credits: 10, perRender: "Rp2.370/render", features: ["10 AI renders", "PNG output", "No expiry", "Priority queue"], btnClass: "price-btn-white", btnText: "Buy Pro", featured: true },
+  { id: "studio", badge: "studio", badgeText: "Studio", name: "Studio", desc: "For power users", price: "Rp98.700", credits: 50, perRender: "Rp1.974/render", features: ["50 AI renders", "PNG output", "No expiry", "Priority queue", "Bulk savings"], btnClass: "price-btn-light", btnText: "Buy Studio" },
 ];
 
 function PricingCards({ onNav, isNewUser, onPurchase, purchasing }) {
