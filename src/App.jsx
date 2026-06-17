@@ -491,7 +491,7 @@ const handlePurchase = async (plan) => {
     const res = await fetch(`${API_BASE}/midtrans-token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: user.userId, package: plan.id }),
+      body: JSON.stringify({ user_id: user.userId, user_email: user.email, package: plan.id }),
     });
     const { snap_token } = await res.json();
 
