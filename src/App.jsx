@@ -319,7 +319,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); line
 .history-loading { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; padding: 20px 0; }
 
 /* HISTORY MODAL */
-.history-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.2s ease; }
+.history-modal-backdrop { position: fixed; inset: 0; background: rgba(255,255,255,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .history-modal { background: white; border-radius: var(--radius-lg); overflow: hidden; max-width: 860px; width: 100%; box-shadow: 0 32px 80px rgba(0,0,0,0.4); animation: scaleIn 0.2s cubic-bezier(0.22,1,0.36,1); }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
