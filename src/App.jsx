@@ -575,6 +575,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
 
   const loadHistory = useCallback(async () => {
     if (!user?.userId || !user?.token) return;
+    console.log("TOKEN:", user.token); // ← tambah ini sementara
     setHistoryLoading(true);
     try {
       const data = await supabase.getRenderHistory(user.userId, user.token);
