@@ -96,6 +96,13 @@ const supabase = {
     const data = await res.json();
     return data[0] || null;
   },
+  async getRenderHistory(userId, token) {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/render_history?user_id=eq.${userId}&order=created_at.desc&limit=20`,
+      { headers: { "Authorization": `Bearer ${token}`, "apikey": SUPABASE_ANON_KEY } }
+    );
+    return res.ok ? res.json() : [];
+  },
 };
 
 const G = `
@@ -294,6 +301,22 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); line
 .no-credits-banner { margin-bottom: 24px; padding: 16px 20px; background: var(--accent-light); border: 1px solid rgba(240,90,40,0.2); border-radius: var(--radius); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .no-credits-text { font-size: 14px; color: var(--accent); font-family: var(--body); font-weight: 500; }
 .no-credits-btn { padding: 8px 16px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--body); }
+
+/* RENDER HISTORY */
+.history-section { margin-top: 32px; }
+.history-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.history-title { font-family: var(--heading); font-size: 16px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+.history-count { font-size: 12px; color: var(--muted); background: var(--surface2); border-radius: 100px; padding: 2px 10px; font-family: var(--mono); }
+.history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.history-item { position: relative; border-radius: var(--radius); overflow: hidden; aspect-ratio: 4/3; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; }
+.history-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
+.history-item:hover img { transform: scale(1.05); }
+.history-item-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 50%); opacity: 0; transition: opacity 0.2s ease; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; }
+.history-item:hover .history-item-overlay { opacity: 1; }
+.history-item-mode { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #ff9f7a; background: rgba(255,255,255,0.12); border-radius: 4px; padding: 2px 6px; width: fit-content; margin-bottom: 4px; }
+.history-item-date { font-size: 11px; color: rgba(255,255,255,0.85); font-family: var(--mono); }
+.history-empty { text-align: center; padding: 32px; color: var(--muted); font-size: 13px; background: var(--surface2); border-radius: var(--radius); border: 1px dashed var(--border); }
+.history-loading { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; padding: 20px 0; }
 
 /* FOOTER */
 .footer { padding: 48px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
@@ -546,7 +569,21 @@ function RenderPage({ user, credits, setCredits, onNav }) {
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [mode, setMode] = useState("exterior");
+  const [renderHistory, setRenderHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const fileInputRef = useRef(null);
+
+  const loadHistory = useCallback(async () => {
+    if (!user?.userId || !user?.token) return;
+    setHistoryLoading(true);
+    try {
+      const data = await supabase.getRenderHistory(user.userId, user.token);
+      setRenderHistory(Array.isArray(data) ? data : []);
+    } catch { setRenderHistory([]); }
+    finally { setHistoryLoading(false); }
+  }, [user]);
+
+  useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const compressImage = (file, maxSizeMB = 2) => new Promise((resolve) => {
     const reader = new FileReader();
@@ -617,6 +654,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
         supabase.deductCredit(user.userId, c, user.token);
         return newVal;
       });
+      setTimeout(() => loadHistory(), 2000);
     } catch (err) { clearInterval(iv); setError("Render error: " + err.message); }
     finally { setIsRendering(false); setRenderMsg("RENDERING..."); }
   };
@@ -740,6 +778,38 @@ function RenderPage({ user, credits, setCredits, onNav }) {
           </div>
         </div>
         <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => onNav("terms")}>Terms & Conditions</span></div>
+
+        {/* RENDER HISTORY */}
+        <div className="history-section">
+          <div className="history-header">
+            <span className="history-title">Render History</span>
+            {!historyLoading && <span className="history-count">{renderHistory.length}</span>}
+          </div>
+          {historyLoading ? (
+            <div className="history-loading">
+              <div style={{ width: 14, height: 14, border: "2px solid var(--border)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+              <span>Loading history...</span>
+            </div>
+          ) : renderHistory.length === 0 ? (
+            <div className="history-empty">Belum ada render. Hasil render kamu akan muncul di sini.</div>
+          ) : (
+            <div className="history-grid">
+              {renderHistory.map((item) => {
+                const date = new Date(item.created_at);
+                const label = date.toLocaleDateString("id-ID", { day: "numeric", month: "short" }) + " · " + date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+                return (
+                  <div key={item.id} className="history-item" onClick={() => window.open(item.result_url, "_blank")}>
+                    <img src={item.result_url} alt="render" loading="lazy" />
+                    <div className="history-item-overlay">
+                      <span className="history-item-mode">{item.mode || "exterior"}</span>
+                      <span className="history-item-date">{label}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
