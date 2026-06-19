@@ -691,7 +691,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
     let mi = 0;
     const iv = setInterval(() => { mi = (mi + 1) % msgs.length; setRenderMsg(msgs[mi]); }, 3000);
     try {
-      const res = await fetch(`${API_BASE}/render`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id: user.userId, image_url: imageUrl, mode: mode }) });
+      const res = await fetch(`${API_BASE}/render`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id: user.userId, image_url: imageUrl, mode: mode, token: user.token }) });
       const data = await res.json();
       clearInterval(iv);
       if (!res.ok || data._route === "gagal") throw new Error(data.message || "Render failed");
