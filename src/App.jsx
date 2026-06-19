@@ -777,8 +777,6 @@ function RenderPage({ user, credits, setCredits, onNav }) {
             </div>
           </div>
         </div>
-        <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => onNav("terms")}>Terms & Conditions</span></div>
-
         {/* RENDER HISTORY */}
         <div className="history-section">
           <div className="history-header">
@@ -810,6 +808,8 @@ function RenderPage({ user, credits, setCredits, onNav }) {
             </div>
           )}
         </div>
+
+        <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => onNav("terms")}>Terms & Conditions</span></div>
       </div>
     </div>
   );
