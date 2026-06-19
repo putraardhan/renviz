@@ -318,6 +318,22 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); line
 .history-empty { text-align: center; padding: 32px; color: var(--muted); font-size: 13px; background: var(--surface2); border-radius: var(--radius); border: 1px dashed var(--border); }
 .history-loading { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; padding: 20px 0; }
 
+/* HISTORY MODAL */
+.history-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.history-modal { background: white; border-radius: var(--radius-lg); overflow: hidden; max-width: 860px; width: 100%; box-shadow: 0 32px 80px rgba(0,0,0,0.4); animation: scaleIn 0.2s cubic-bezier(0.22,1,0.36,1); }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.history-modal-img { width: 100%; display: block; max-height: 70vh; object-fit: contain; background: var(--surface2); }
+.history-modal-footer { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); }
+.history-modal-info { display: flex; flex-direction: column; gap: 2px; }
+.history-modal-mode { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+.history-modal-date { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.history-modal-actions { display: flex; align-items: center; gap: 8px; }
+.history-modal-close { padding: 8px 16px; background: none; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--muted); cursor: pointer; font-family: var(--body); transition: all 0.2s; }
+.history-modal-close:hover { border-color: var(--text); color: var(--text); }
+.history-modal-download { padding: 8px 18px; background: var(--accent); border: none; border-radius: 8px; font-size: 13px; font-weight: 600; color: white; cursor: pointer; font-family: var(--body); transition: background 0.2s; }
+.history-modal-download:hover { background: #d94e22; }
+
 /* FOOTER */
 .footer { padding: 48px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .footer-logo { font-family: var(--mono); font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
@@ -571,11 +587,11 @@ function RenderPage({ user, credits, setCredits, onNav }) {
   const [mode, setMode] = useState("exterior");
   const [renderHistory, setRenderHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [selectedHistory, setSelectedHistory] = useState(null);
   const fileInputRef = useRef(null);
 
   const loadHistory = useCallback(async () => {
     if (!user?.userId || !user?.token) return;
-    console.log("TOKEN:", user.token); // ← tambah ini sementara
     setHistoryLoading(true);
     try {
       const data = await supabase.getRenderHistory(user.userId, user.token);
@@ -668,6 +684,20 @@ function RenderPage({ user, credits, setCredits, onNav }) {
     const a = document.createElement("a"); a.href = url; a.download = "renviz-output.png"; a.click();
     URL.revokeObjectURL(url);
   };
+
+  const handleHistoryDownload = async (item) => {
+    const res = await fetch(item.result_url);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `renviz-${item.id.slice(0,8)}.png`; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setSelectedHistory(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const canRender = imageUrl && uploadStatus === "done" && !isRendering && credits > 0;
 
@@ -797,7 +827,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
                 const date = new Date(item.created_at);
                 const label = date.toLocaleDateString("id-ID", { day: "numeric", month: "short" }) + " · " + date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
                 return (
-                  <div key={item.id} className="history-item" onClick={() => window.open(item.result_url, "_blank")}>
+                  <div key={item.id} className="history-item" onClick={() => setSelectedHistory({ ...item, label })}>
                     <img src={item.result_url} alt="render" loading="lazy" />
                     <div className="history-item-overlay">
                       <span className="history-item-mode">{item.mode || "exterior"}</span>
@@ -809,6 +839,25 @@ function RenderPage({ user, credits, setCredits, onNav }) {
             </div>
           )}
         </div>
+
+        {/* MODAL LIGHTBOX */}
+        {selectedHistory && (
+          <div className="history-modal-backdrop" onClick={() => setSelectedHistory(null)}>
+            <div className="history-modal" onClick={e => e.stopPropagation()}>
+              <img src={selectedHistory.result_url} alt="render" className="history-modal-img" />
+              <div className="history-modal-footer">
+                <div className="history-modal-info">
+                  <span className="history-modal-mode">{selectedHistory.mode || "exterior"}</span>
+                  <span className="history-modal-date">{selectedHistory.label}</span>
+                </div>
+                <div className="history-modal-actions">
+                  <button className="history-modal-close" onClick={() => setSelectedHistory(null)}>Close</button>
+                  <button className="history-modal-download" onClick={() => handleHistoryDownload(selectedHistory)}>↓ Download PNG</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="r-footer"><span className="r-footer-text">renviz.app</span><span className="r-footer-text" style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => onNav("terms")}>Terms & Conditions</span></div>
       </div>
