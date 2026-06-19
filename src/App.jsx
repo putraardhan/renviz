@@ -489,11 +489,11 @@ function HomePage({ onNav }) {
           <p className="hero-sub">Transform your SketchUp models into stunning photorealistic renders with the power of AI, faster, easier, and more affordable than traditional rendering.</p>
           <div className="hero-actions">
             <button className="btn-primary" onClick={() => onNav("render")}>
-              Render Now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              Start For Free <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </button>
             <button className="btn-secondary" onClick={() => onNav("pricing")}>See Pricing</button>
           </div>
-          <p className="hero-note">✦ No subscription · Pay per render · Credits never expire</p>
+          <p className="hero-note">✦ Start free with 1 render · No subscription · Credits never expire</p>
         </div>
         <div className="hero-right fade-up" style={{ animationDelay: "0.12s" }}>
           <BeforeAfterSlider
