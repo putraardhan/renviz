@@ -401,19 +401,19 @@ function BeforeAfterSlider({ beforeSrc, afterSrc }) {
 }
 
 const PLANS = [
-  { id: "trial", badge: "trial", badgeText: "New User Only", name: "Trial", desc: "Try before you commit", price: "Rp3.200", credits: 2, perRender: "Rp1.600/render", features: ["2 AI renders", "PNG output", "One-time offer for new accounts"], btnClass: "price-btn-accent", btnText: "Claim Trial", newUserOnly: true },
   { id: "basic", badge: "basic", badgeText: "Basic", name: "Basic", desc: "For occasional use", price: "Rp9.900", credits: 4, perRender: "Rp2.475/render", features: ["4 AI renders", "PNG output", "No expiry"], btnClass: "price-btn-light", btnText: "Buy Basic" },
   { id: "pro", badge: "pro", badgeText: "Pro", name: "Pro", desc: "Best value", price: "Rp23.700", credits: 10, perRender: "Rp2.370/render", features: ["10 AI renders", "PNG output", "No expiry", "Priority queue"], btnClass: "price-btn-white", btnText: "Buy Pro", featured: true },
   { id: "studio", badge: "studio", badgeText: "Studio", name: "Studio", desc: "For power users", price: "Rp98.700", credits: 50, perRender: "Rp1.974/render", features: ["50 AI renders", "PNG output", "No expiry", "Priority queue", "Bulk savings"], btnClass: "price-btn-light", btnText: "Buy Studio" },
 ];
 
-function PricingCards({ onNav, isNewUser, onPurchase, purchasing }) {
-  const mainPlans = PLANS.filter(p => !p.newUserOnly);
-  const trialPlan = PLANS.find(p => p.newUserOnly);
-  const showTrial = isNewUser || !onPurchase;
+function PricingCards({ onNav, onPurchase, purchasing }) {
+  const [customQty, setCustomQty] = useState(5);
+  const PRICE_PER_CREDIT = 2500;
+  const customTotal = customQty * PRICE_PER_CREDIT;
+  const formatRp = (n) => "Rp" + n.toLocaleString("id-ID");
 
   const renderCard = (p) => (
-    <div className={`price-card ${p.featured ? "featured" : ""} ${p.newUserOnly ? "new-user" : ""}`} key={p.id}>
+    <div className={`price-card ${p.featured ? "featured" : ""}`} key={p.id}>
       <div className={`price-badge ${p.badge}`}>{p.badgeText}</div>
       <div className="price-name">{p.name}</div>
       <div className="price-desc">{p.desc}</div>
@@ -428,16 +428,53 @@ function PricingCards({ onNav, isNewUser, onPurchase, purchasing }) {
     </div>
   );
 
+  const customPlan = {
+    id: "custom",
+    credits: customQty,
+    price: customTotal,
+    name: formatRp(customTotal),
+  };
+
   return (
     <>
       <div className="pricing-grid">
-        {mainPlans.map(p => renderCard(p))}
+        {PLANS.map(p => renderCard(p))}
       </div>
-      {trialPlan && showTrial && (
-        <div className="pricing-bottom">
-          {renderCard(trialPlan)}
+      {/* CUSTOM CREDIT CARD */}
+      <div className="pricing-bottom">
+        <div className="price-card" style={{ borderColor: "var(--border)" }}>
+          <div className="price-badge" style={{ background: "#f0fdf4", color: "#16a34a" }}>Custom</div>
+          <div className="price-name">Custom Credits</div>
+          <div className="price-desc">Flat Rp2.500/credit, beli sesuai kebutuhan</div>
+          <div className="price-amount">{formatRp(customTotal)}</div>
+          <div className="price-per">{customQty} credits · Rp2.500/render</div>
+          <div style={{ margin: "16px 0" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "var(--muted)" }}>Jumlah credit</span>
+              <span style={{ fontSize: "13px", fontWeight: "700", fontFamily: "var(--mono)", color: "var(--accent)" }}>{customQty} cr</span>
+            </div>
+            <input
+              type="range"
+              min={1} max={100} value={customQty}
+              onChange={e => setCustomQty(Number(e.target.value))}
+              style={{ width: "100%", accentColor: "var(--accent)", cursor: "pointer" }}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--muted)", marginTop: "4px" }}>
+              <span>1</span><span>50</span><span>100</span>
+            </div>
+          </div>
+          <div className="price-features">
+            <div className="price-feature">PNG output</div>
+            <div className="price-feature">No expiry</div>
+            <div className="price-feature">Flat Rp2.500/credit</div>
+          </div>
+          <button className="price-btn price-btn-accent"
+            onClick={() => onPurchase ? onPurchase(customPlan) : onNav("auth")}
+            disabled={purchasing === "custom"}>
+            {purchasing === "custom" ? "Processing..." : `Buy ${customQty} Credits`}
+          </button>
         </div>
-      )}
+      </div>
     </>
   );
 }
@@ -488,7 +525,7 @@ function HomePage({ onNav }) {
         <div className="section-tag">Pricing</div>
         <h2 className="section-h2">Simple, transparent<br />pricing.</h2>
         <p className="section-sub">Buy credits, use them whenever you want. No monthly fees.</p>
-        <PricingCards onNav={onNav} isNewUser={false} onPurchase={() => onNav("auth")} />
+        <PricingCards onNav={onNav} onPurchase={() => onNav("auth")} />
       </section>
 
       <footer className="footer">
@@ -526,34 +563,28 @@ const handlePurchase = async (plan) => {
   if (!user) { onNav("auth"); return; }
   setPurchasing(plan.id);
   try {
-    // Request snap token dari n8n
     const res = await fetch(`${API_BASE}/midtrans-token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: user.userId, user_email: user.email, package: plan.id }),
+      body: JSON.stringify({
+        user_id: user.userId,
+        user_email: user.email,
+        package: plan.id,
+        credits: plan.credits,
+        price: typeof plan.price === "number" ? plan.price : parseInt(plan.price.replace(/\D/g, "")),
+      }),
     });
     const { snap_token } = await res.json();
 
-    // Buka Midtrans Snap popup
     window.snap.pay(snap_token, {
       onSuccess: () => {
         setDone(true);
-        if (plan.newUserOnly) {
-          setIsNewUser(false);
-          supabase.setNewUserFalse(user.userId, user.token);
-        }
         if (onCreditsUpdate) onCreditsUpdate(plan.credits, plan.id);
         setTimeout(() => { setDone(false); onNav("render"); }, 1800);
       },
-      onPending: () => {
-        setPurchasing(null);
-      },
-      onError: () => {
-        setPurchasing(null);
-      },
-      onClose: () => {
-        setPurchasing(null);
-      },
+      onPending: () => { setPurchasing(null); },
+      onError: () => { setPurchasing(null); },
+      onClose: () => { setPurchasing(null); },
     });
   } catch (err) {
     console.error(err);
@@ -568,7 +599,7 @@ const handlePurchase = async (plan) => {
         <h2 className="section-h2">Pay as you go.<br />No subscriptions.</h2>
         <p className="section-sub">Buy credits, render whenever you need. Credits never expire.</p>
         {done && <div className="auth-success" style={{ marginTop: 24, maxWidth: 400 }}>✓ Payment successful! Redirecting...</div>}
-        <PricingCards onNav={onNav} isNewUser={isNewUser} onPurchase={handlePurchase} purchasing={purchasing} />
+        <PricingCards onNav={onNav} onPurchase={handlePurchase} purchasing={purchasing} />
       </section>
     </div>
   );
@@ -797,7 +828,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
                 {outputUrl
                   ? <img src={outputUrl} alt="render" className="output-img" />
                   : <div className="output-placeholder"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /></svg><span>Awaiting Render</span></div>}
-                {isRendering && <div className="loading-overlay"><div className="loader-ring" /><div className="loading-text">{renderMsg}</div><div className="loading-sub">~30 seconds</div></div>}
+                {isRendering && <div className="loading-overlay"><div className="loader-ring" /><div className="loading-text">{renderMsg}</div><div className="loading-sub">~60 seconds</div></div>}
               </div>
               <button className="btn-render" onClick={handleRender} disabled={!canRender}>
                 {isRendering
