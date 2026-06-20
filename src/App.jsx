@@ -523,7 +523,6 @@ function HomePage({ onNav }) {
         <div className="gallery-head">
           <div className="section-tag">Gallery</div>
           <h2 className="section-h2">Rendered with Renviz.</h2>
-          <p className="section-sub">A glimpse of photorealistic renders created from SketchUp models.</p>
         </div>
         <div className="marquee">
           <div className="marquee-track">
