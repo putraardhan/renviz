@@ -12,7 +12,7 @@ export default function TermsPage({ onNav }) {
             Terms & Conditions
           </h1>
           <p style={{ fontSize: 14, color: "#888884", lineHeight: 1.7 }}>
-            Berlaku efektif: Juni 2025 &nbsp;·&nbsp; Versi 1.0 &nbsp;·&nbsp; Dioperasikan oleh Artra Group
+            Berlaku efektif: Juni 2025 &nbsp;·&nbsp; Versi 1.0 &nbsp;·&nbsp; Dioperasikan oleh Putra Ardhan
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export default function TermsPage({ onNav }) {
           {
             num: "02",
             title: "Gambaran Umum Layanan",
-            content: "Renviz.app adalah platform berbasis kecerdasan buatan yang memungkinkan pengguna mengubah gambar denah atau sketsa bangunan menjadi visualisasi render arsitektur berkualitas tinggi. Layanan dioperasikan oleh Artra Group.",
+            content: "Renviz.app adalah platform berbasis kecerdasan buatan yang memungkinkan pengguna mengubah gambar denah atau sketsa bangunan menjadi visualisasi render arsitektur berkualitas tinggi. Layanan dioperasikan oleh Putra Ardhan.",
           },
           {
             num: "03",
@@ -79,7 +79,7 @@ export default function TermsPage({ onNav }) {
           {
             num: "11",
             title: "Ganti Rugi",
-            content: "Anda setuju untuk membebaskan Renviz.app dan Artra Group dari segala tuntutan, kerugian, kewajiban, dan biaya (termasuk biaya hukum) yang timbul dari penggunaan Anda atas layanan ini atau pelanggaran terhadap Syarat & Ketentuan ini.",
+            content: "Anda setuju untuk membebaskan Renviz.app dan Putra Ardhan dari segala tuntutan, kerugian, kewajiban, dan biaya (termasuk biaya hukum) yang timbul dari penggunaan Anda atas layanan ini atau pelanggaran terhadap Syarat & Ketentuan ini.",
           },
           {
             num: "12",
@@ -145,8 +145,8 @@ export default function TermsPage({ onNav }) {
 
         {/* Footer */}
         <div style={{ paddingTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
-          <p style={{ fontSize: 13, color: "#aaa", margin: 0 }}>Legal Notice — Renviz.app dioperasikan oleh Artra Group.</p>
-          <p style={{ fontSize: 13, color: "#aaa", margin: 0 }}>© 2025 Artra Group. Hak cipta dilindungi undang-undang.</p>
+          <p style={{ fontSize: 13, color: "#aaa", margin: 0 }}>Legal Notice — Renviz.app dioperasikan oleh Putra Ardhan.</p>
+          <p style={{ fontSize: 13, color: "#aaa", margin: 0 }}>© 2025 Putra Ardhan. Hak cipta dilindungi undang-undang.</p>
         </div>
 
         {/* Back button */}
