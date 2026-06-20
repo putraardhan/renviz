@@ -354,19 +354,36 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); line
 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 .fade-up { animation: fadeUp 0.5s ease forwards; }
 
+@media (max-width: 900px) {
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 768px) {
-  .nav { padding: 0 20px; }
-  .hero { flex-direction: column; padding: 100px 20px 60px; gap: 40px; }
-  .hero-left, .hero-right { max-width: 100%; }
-  .section { padding: 64px 20px; }
+  .nav { padding: 0 16px; }
+  .nav-links { gap: 2px; }
+  .nav-link { padding: 8px 10px; font-size: 13px; }
+  .nav-cta { padding: 8px 14px; font-size: 13px; }
+  .nav-hide-sm { display: none; }
+  .hero { flex-direction: column; min-height: auto; align-items: stretch; padding: 96px 20px 56px; gap: 36px; }
+  .hero-left, .hero-right { max-width: 100%; width: 100%; }
+  .hero-sub { max-width: 100%; }
+  .hero-right { display: flex; justify-content: center; }
+  .ba-container { width: 100%; max-width: 480px; }
+  .section { padding: 56px 20px; }
+  .gallery-section { padding: 56px 0; }
   .gallery-head { padding: 0 20px; }
   .gallery-img { height: 200px; }
-  .steps-grid { grid-template-columns: 1fr; }
-  .pricing-grid { grid-template-columns: 1fr 1fr 1fr; }
   .render-grid { grid-template-columns: 1fr; }
   .footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 20px; }
 }
-@media (max-width: 480px) { .pricing-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-bottom .price-card { width: 100%; }
+  .nav-logo { font-size: 15px; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn-primary, .hero-actions .btn-secondary { justify-content: center; }
+  .gallery-img { height: 170px; }
+}
 `;
 
 function BeforeAfterSlider({ beforeSrc, afterSrc }) {
@@ -1022,7 +1039,7 @@ export default function App() {
           <div className="nav-links">
             <button className="nav-link" onClick={goGallery}>Gallery</button>
             <button className="nav-link" onClick={() => onNav("pricing")}>Pricing</button>
-            <button className="nav-link" onClick={() => onNav("terms")}>Terms</button>
+            <button className="nav-link nav-hide-sm" onClick={() => onNav("terms")}>Terms</button>
             {user ? (
               <><button className="nav-link" onClick={() => onNav("render")}>Dashboard</button>
               <button className="nav-cta" onClick={() => { supabase.clearSession(); setUser(null); setIsNewUser(false); setPage("home"); }}>Sign Out</button></>
