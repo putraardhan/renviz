@@ -864,6 +864,7 @@ function RenderPage({ user, credits, setCredits, onNav }) {
                   ? <><img src={previewUrl} alt="preview" className="preview-img" /><div className="preview-overlay"><span className="change-text">↑ Change</span></div></>
                   : <div className="drop-text"><strong>Drop image here</strong>or click to browse · JPG, PNG</div>}
               </div>
+              {!previewUrl && <p style={{ marginTop: "10px", fontSize: "12px", color: "var(--muted)", textAlign: "center", fontFamily: "var(--body)" }}>💡 Use a SketchUp screenshot for best results</p>}
               {uploadStatus && <div className="upload-status"><div className={`status-dot ${uploadStatus}`} /><span className="status-text">{uploadMsg}</span></div>}
               {error && <div className="r-error">{error}</div>}
             </div>
