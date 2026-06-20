@@ -185,6 +185,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); line
 .section-h2 { font-family: var(--heading); font-size: clamp(32px, 4vw, 48px); font-weight: 800; letter-spacing: -1.5px; color: var(--text); margin-bottom: 12px; line-height: 1.1; }
 .section-sub { font-size: 16px; color: var(--muted); max-width: 480px; font-weight: 300; }
 
+/* GALLERY */
+.gallery-section { padding: 80px 0; overflow: hidden; }
+.gallery-head { padding: 0 48px; margin-bottom: 44px; }
+.marquee { display: flex; width: 100%; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.marquee-track { display: flex; flex-shrink: 0; animation: marquee 45s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.gallery-img { height: 300px; width: auto; margin-right: 20px; border-radius: var(--radius-lg); object-fit: cover; flex-shrink: 0; box-shadow: 0 12px 40px rgba(0,0,0,0.08); background: var(--surface2); }
+
 /* STEPS */
 .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; }
 .step-card { padding: 32px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; overflow: hidden; }
@@ -350,6 +359,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); line
   .hero { flex-direction: column; padding: 100px 20px 60px; gap: 40px; }
   .hero-left, .hero-right { max-width: 100%; }
   .section { padding: 64px 20px; }
+  .gallery-head { padding: 0 20px; }
+  .gallery-img { height: 200px; }
   .steps-grid { grid-template-columns: 1fr; }
   .pricing-grid { grid-template-columns: 1fr 1fr 1fr; }
   .render-grid { grid-template-columns: 1fr; }
@@ -479,6 +490,11 @@ function PricingCards({ onNav, onPurchase, purchasing }) {
   );
 }
 
+const GALLERY = [
+  "/sample1.webp", "/sample2.webp", "/sample3.webp", "/sample4.webp",
+  "/sample5.webp", "/sample6.webp", "/sample7.webp", "/sample8.webp",
+];
+
 function HomePage({ onNav }) {
   return (
     <div>
@@ -500,6 +516,21 @@ function HomePage({ onNav }) {
             beforeSrc="https://slmplhhqkzfdlmpscsvj.supabase.co/storage/v1/object/public/renders/before.png?v=2"
             afterSrc="https://slmplhhqkzfdlmpscsvj.supabase.co/storage/v1/object/public/renders/after.png?v=2"
           />
+        </div>
+      </section>
+
+      <section id="gallery" className="gallery-section">
+        <div className="gallery-head">
+          <div className="section-tag">Gallery</div>
+          <h2 className="section-h2">Rendered with Renviz.</h2>
+          <p className="section-sub">A glimpse of photorealistic renders created from SketchUp models.</p>
+        </div>
+        <div className="marquee">
+          <div className="marquee-track">
+            {[...GALLERY, ...GALLERY].map((src, i) => (
+              <img key={i} src={src} className="gallery-img" alt="Renviz AI render sample" loading="lazy" />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -907,6 +938,12 @@ export default function App() {
     if (p !== "render") window.scrollTo(0, 0);
   };
 
+  const goGallery = () => {
+    const scroll = () => document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth" });
+    if (page !== "home") { setPage("home"); setTimeout(scroll, 120); }
+    else scroll();
+  };
+
   const [sessionLoading, setSessionLoading] = useState(true);
 
   const onLogin = async (u) => {
@@ -984,6 +1021,7 @@ export default function App() {
         <nav className="nav">
           <div className="nav-logo" onClick={() => setPage("home")}>renviz<span>.app</span></div>
           <div className="nav-links">
+            <button className="nav-link" onClick={goGallery}>Gallery</button>
             <button className="nav-link" onClick={() => onNav("pricing")}>Pricing</button>
             <button className="nav-link" onClick={() => onNav("terms")}>Terms</button>
             {user ? (
